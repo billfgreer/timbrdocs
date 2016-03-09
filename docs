@@ -1,0 +1,346 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Timbr.io Documentation 
+
+Table Of Contents:
+
+Explanation of Timbr.io’s Structure
+Getting Started:
+Logging in:
+Create a Project:
+Adding a Data Source:
+Code for a Data Source:
+Authentication for a Source:
+Adding a New Data Source:
+How to Create Forms:
+Working with Data Pipelines:
+Publishing a Data Source:
+Adding Transforms:
+Create a New Transform:
+Shell Access:
+Publishing Transforms:
+Capture Data (editor mode):
+Dashboard Mode:
+Capture and Snapshot Data (Dashboard Mode):
+Create a Table from Snapshot:
+Data Table:
+Publishing Data Snapshots and Tables:
+Using Jupyter Notebooks:
+Timbr.io Notebook Extension:
+Working with Timbr.io Data in the Notebook:
+Help & Support:
+
+
+
+
+
+Explanation of Timbr.io’s Structure
+Timbr.io’s approach to a data science platform is different than most existing solutions.  Our focus is on enabling reusability of analysis by leveraging the interaction of data sources and algorithms when doing data analysis.  We thought it would be helpful to take minute and explain the structure of the Timbr.io platform.  Let’s start with an outline of all the components we provide for doing and sharing data science:
+
+Data sources
+Data pipelines
+Data source
+Transforms/snippets
+Data snapshots
+Notebooks
+Imported data snapshots
+Transforms/snippets
+Dashboards?
+
+One aspect of this structure that can be a little confusing is the relationship between data sources and pipelines.  While a data pipeline contains a data source it is also likely that a data source will have several pipelines connected to it.  From this perspective we make the data source the top level organizing principle. This also works well because code reuse works best when the data source is the same. While you can reuse code for different data sources, the odds we can make it work automatically, without a user making alterations, drops noticeably. Around each data source we have an ecosystem of pipelines, transforms, snapshots, and notebooks.  
+
+One analogy is to think of each data source as channel with a variety of programmed content surrounding it.  So, for example, there would be a Twitter channel, a Sina Weibo channel, a Shodan channel, a Planet Labs channel etc.  Within a Twitter channel there would be pipelines building different data products from the source data.  Around these pipelines there would be snippets for analysing the data and snapshots that have been created by the pipeline.  These snapshot in turn feed a variety of notebooks for post processing and visualizing the data.  Within a channel we can then organize content hierarchically, as it is created, working down the tiers of the platform.  The diagram below illustrates this structure:
+
+
+
+The nice thing about this structure is you don’t have to start at the top creating or connecting to a data source.  If there is already a pipeline that works for you then capture data from it.  Also you can go straight to the notebook and search for existing snapshots that you can download and start analyzing immediately.
+
+
+
+
+
+Clicking on the ‘Sign in with GitHub’ button will take you to the Github Homepage where you can either create an account or enter your credentials. 
+
+
+
+Create a Project: 
+After Logging into Timbr.io you’re ready to create your first pipeline. Click on the ‘New Pipeline’ button to create your first project and pipeline. 
+
+
+After creating your pipeline, Give it a name and description. The Pipeline name will be your project name. A good description will help others find your pipeline, and repurpose it for their needs. Click Submit. 
+
+
+
+This step may take a few seconds, While the interface looks simple, at this point we are building a development environment, which includes creating dedicated Docker containers for your project, installing needed resources for your environment and managing the packages needed for your data collection and analysis. 
+Adding a Data Source:
+You’ve now created your first pipeline. Your project name will appear in a list on the left side of the screen. As you create more pipelines you will be able to access them here. Next you will want to add a data source. From the search menu you can search for community created sources. The most popular and relevant sources will pre-populate into the search menu. Click on a source to connect and start streaming data. Each source will have supported metadata elements such as, who added it, and the date it was created. 
+
+
+After clicking on a source you will have an opportunity to view information about that source:
+
+Source Name:  short description of the data source
+User Name: is the name of the user who created the data source and the data/time they added it 
+Preview: this will show a sample output from the source
+Code: will give you a preview of the code written by the user to connect the data source
+
+After verifying this is the data source you’d like to add, click the ‘Insert This’ button. This will add the source to your pipeline. If the connection works, data will immediately start flowing into your pipeline and giving you preview data. 
+
+
+Code for a Data Source:
+If you’d like to access the raw code (python) for connecting to a data  source, you can view It by clicking on the ‘Code’ button. You can always access this later once the source is added to the pipeline. Viewing the raw code will let you know how the connection was made, and any dependencies that were necessary for the connection.
+
+
+
+After you’ve clicked the ‘Insert This’ button, you’ll be prompted to edit the name of the source. Click submit.
+
+
+
+Data sources can be inserted either as code or as a form depending on what the source’s author configured.  If the data source requires credentials or needs query parameters, best practice it to create a form to make these easy for a user to configure.  If the source does not require credentials or need to have any parameters set, for instance a websocket scraper, then just having code works well.  The following sections will cover how to create forms for your data source.
+Authentication for a Source:
+After adding the source you may need to authenticate your session with the data source provider. This will depend on the data source you are trying to connect to, but most streaming and REST API endpoints require you to have credentials in order to access their data sources. Each pipeline will need to create a new connection to the source API, so for most cases you will need a second set of credentials to stream two pipelines from the same source.
+
+
+Adding a New Data Source:
+In addition to choosing one of the data source already configured in Timbr.io you can also choose to connect your own data source.  The platform supports a variety of data source types you can connect.  Broadly these can be divided between streaming and polling sources.  Streaming source provide you a continuous delivery of messages, while polling visits the source for new data on a regular interval you set.  To help you write data sources we provide a set of templates for common polling and streaming data sources.  The templates don’t cover every use case but they provide a nice guide for common scenarios.  The nice part is there is nothing proprietary or custom in writing a data source for Timbr.io.  You use straight Python - no special wrapper.  Currently we have templates for the following data source types - Streaming API’s, REST API’s, Websockets, and Databases.
+
+Section on error handling and best practice - TBD on where we think we’ll end up for IQT.  Can leave blank for the IQT Design Doc.
+
+After creating your project you can click on the ‘Gear’ Icon to get a set of options to apply to your high level project:
+
+Start Running
+Stop Running
+Edit Pipeline
+Download Pipeline
+Upload Files
+Go to Shell
+
+
+How to Create Forms:
+When you have a data source that requires credentials or a transform that has query parameters it can often be nice to provide a form to populate those in the code.  Good news - Timbr.io let’s you do this by integrating Handlebars.js minimal templating.  Using Handlebars in your Python code for a transform or data source is super straightforward.  When you would like to create a form for a variable just set that variable equal to {{ number NAME }} for an integer or {{ string NAME }} for text.  This parameters can be placed anywhere in your code.  Below we’ll show a quick example creating a form to enter your Twitter credentials:
+
+
+
+Once you save your code with the Handlebars formatting you’ll get a nice form in your pipeline to enter credentials:
+
+
+
+If  you would like to add a drop down of variable options for your form you can use the syntax {{ string Choose_Your_Option [OptionOne OptionTwo AnSoOn] }}.  In the code block below we’ll show a drop down to set a filter against the Twitter public streaming API:
+
+
+
+In case above we are providing three options to select from - track, locations and follow.  The result is a form that looks like this:
+
+
+
+We can get a little fancier with our form by including text instructions at the top of our form. To add text we can again use Handlebars with the syntax {{ docstring “Text I want included” }}.  Only the last docstring you put will be shown at the top of your form.  Previous docstring text will be ignored.  
+
+
+
+You can see the result of this Handlebar code in our form above where “Enter the parameters for your filter” shows up at the top of the form.
+
+
+
+
+Working with Data Pipelines:
+Once you’ve saved the connection, data will start to flow into the pipeline. You’ll see preview data load into the preview data area. Click on the arrow below the ‘Preview data’ menu header to view the full set of data and meta-data being collected by the source. This data will be represented as a nested JSON structure. You can click through the first 10 Rows of data that have been collected using the arrows next to the ‘Preview Data’ button. Clicking the refresh button will load 10 new rows of data, this will allow you to update the preview data if you edit any of the steps leading up to the preview.
+
+At this point you will notice the two icons to the right of the streaming data. The ‘Running’ Icon means that the pipeline is active, and streaming data live. The ‘Capture’ Icon will indicate that you are actively collecting the data that is coming through the pipeline. After creating a pipeline ‘Running’ will turn on, and ‘Capturing’ will be set to its default, which is not running. 
+
+
+
+Publishing a Data Source:
+Once you’ve created or added a new source to your pipeline you can share that source through Timbr.io. Click the blue Timbr.io logo at the bottom right of the transform window to publish your data source.
+ 
+
+After clicking this button you will fill out a form, which will ask you to name the data source, give a description of the source, and add tags. Tags will help other users find this source.
+
+
+
+Publishing your source will make that source repurposable to the rest of the Timbr.io community through the search interface, no one will have to re-write the connection to that source. Remember, as mentioned in the previous section about creating a form, you can add handlebars to the raw code to create an easy to use template allowing other users to add their own inputs to the data source.
+Adding Transforms:
+After you’ve connected to your source and the data is flowing you can start to build up your algorithms by creating additional steps. Clicking on the Timbr.io logo below the source will open up a search screen which will allow you to add ‘Transforms’ to your data. Transforms will be the building blocks to creating a custom algorithm to meet your needs. You can use any of the community developed transforms, which are available in search, or you can create your own custom transforms. Search through Timbr.io to find specific transforms, or view the community transforms. We’ve done our best to try to match the transforms that will work well with your data source to the search results.
+   
+
+When adding a transform you can again access information related to this snippet of code. You have the ability to audit and edit the the raw code in the transform to meet your specific needs. 
+
+Transforms can vary widely in their use and outcomes. Some transforms can create new data structures, others can be smart filters. 
+
+Examples of transforms:
+
+Text Tokenization
+Binary Classifiers
+Fuzzy matching on text 
+Hyperloglog
+Friend and Follower Accrual Rates 
+Bloom filters 
+K-Means Clustering
+Location Inference
+Etc...
+
+We have also added an indicator to tell you how likely it is that this code transform will work with your data source in its raw form by matching the keys from the output of the previous step to the keys that this transform is expecting as inputs. 
+
+
+
+After creating a new pipeline step you can rename the transform that you’ve used. This is particularly useful if you’ve created a new transform.
+
+
+
+After adding a Transform you can click on the tool icon to the right, this will allow you to View the source code for the Transform you’ve added. You can load previous parameters, which is especially useful when you’re trying to recall your Authentication information and API keys. 
+Create a New Transform:
+After connecting to a data source you can search through Timbr.io for an assortment of popular transforms, or you can write your own new transform in Python, directly in the browser, while connected to that data source. If you’d like to write your own transform you can click the ‘Insert Blank Step’ Button to the right.
+
+
+
+After clicking on this button you can name your new transform:
+
+
+
+After Creating your new transform you will be added to a nearly blank transform. Here, you can write any raw python against the incoming  data source and data structure. After you’ve added your new code you can save and publish your transform for others to use.
+ 
+
+You will not be able to publish your code if there are errors in the code. This will be clearly indicated within the workflow by showing that the publish button is now red, and no longer clickable.
+
+ 
+
+Debug your code and save your cleaned code to continue publishing your dataset. 
+
+
+
+After you click ‘Save’ The transform will start running and new data attributes will be added to the preview data. In this example they are added as a top level object in the JSON structure. You can continue adding more transforms to your pipeline until you’re getting the desired output.
+
+
+
+Here you can see the new top level JSON objects that were added to this dataset via the previous transform. This new attributes are now available to be used for analysis after they have been published as a snapshot or as a table. 
+Shell Access:
+There are many reasons that a user would want to gain shell access while working within the pipeline. Some of these reasons include accessing uploaded files, or adding new libraries and dependencies to your pipeline. 
+
+The shell can be accessed through the Pipeline Action menu.
+
+
+
+Clicking on ‘Shell’ from this point will open the shell window in the browser you’re working in.
+
+
+
+From here you can issue any shell commands that you’d like. You can also use the shell to access files that you have uploaded to your pipeline.Uploaded files to your Timbr.io project will be added to a folder ‘/twola-data/data’. Keep this in mind as you are using those files.
+
+Publishing Transforms:
+After you’ve created or edited your new transform you can share this back to Timbr.io, so that the rest of the community can audit, and repurpose your snippet for their own personal and public use. In the editor mode, at the bottom right hand side of the code entry window you will see a blue button with a white Timbr.io logo, click on this to publish your snippet out the the Hub.
+
+
+
+After clicking on the Timbr.io logo you will get a window to give a name, description and tags to your transform. completely filling this out will allow other users to find and use this transform in their own work. 
+
+
+
+Clicking publish at this point will share this transform with the rest of the data science community. 
+Capture Data (editor mode):
+Once the pipeline is giving you an output that you’d like to experiment with you can start capturing the data from that pipeline. Clicking on the ‘Capture’ icon to the right of the transform will start collecting data at that point in the pipeline. You can capture data from multiple points within the pipeline simultaneously by capturing at different points at the transforms that you’d like to capture at.
+Dashboard Mode:
+You will see a tooltip asking you to switch from ‘Editor’ mode to ‘Dashboard’ Mode. Now that the data is being captured, you will be able to create snapshots from that data in the dashboard mode.  
+
+
+Capture and Snapshot Data (Dashboard Mode):
+From the dashboard mode you can view all of the steps being used in your pipeline and control where the data is running and being captured. you can also view previously saved snapshots and tables. 
+
+
+
+Clicking on the ‘Wrench / action’ icon next to the step where your data is being captured will allow you to create a snapshot. In this screenshot we are already collecting the data, taking a snapshot will give us a static file that we can use to experiment, download, or export. 
+
+We can also preview, stop capturing, or stop running at this point as well. If you stop running at one of the steps within the pipeline you will also stop capturing data at this step, and all subsequent steps, as well.
+  
+
+After creating a snapshot from the dashboard view you can name that snapshot, or you can preview the data within the snapshot at this step by clicking on the small arrow next to either ‘Current’ (the occuring capture), or any of the other snapshots. Name the snapshot and it will be added to your data library.
+
+
+
+Once you’ve created your snapshot you can view the data. We can also see when the snapshot was created and the file size. 
+ 
+Create a Table from Snapshot:
+Clicking on the ‘View’ button in your data library will give you a full list of all the JSON Items that you have collected up to the point that you created the snapshot. From this point you can download the .h5 file, the JSON file, delete the snapshot, or edit the snapshot. We are also given the option to ‘Convert to Table’. This will allow us to flatten the data into a non-nested structure, and to add only the attributes we would like to view. Click on attribute names you would like to use in your table to add them. 
+
+
+
+At this point click the ‘convert to table’ button, This will convert your chosen attributes to a table. We can also decide to rename the column headers, change the data type (string, integer, decimal, float, etc..). We can also create a default/null value. This will be the default value given to the table if there is no data available, and will help keep your table clean and ready to be used in other tools. 
+
+
+
+After clicking ‘create table’ you can rename your table, and it will be saved out to the data library in your dashboard mode. 
+
+
+
+
+Data Table:
+Clicking on the table from this point will bring you to the flat file you’ve created. Here you will have the ability to interact and view all of the data in a table form, or download a csv file to be used elsewhere. The tables default view will show you the first and last 10 entries in the table. You can quickly filter through large datasets by viewing larger portions of the table, or use the scroll bar in the top left of the table menu to quickly shuffle through your new dataset. 
+
+
+
+At the top left there are options for ‘Truncate Strings’ which will be set to on by default, but if you are particularly interested in seeing the full extent of a cell, clicking on this will extend the cell to the full extent of the content in the cell. Clicking on the ‘Linkify URLs’ will allow you to click on any hyperlinks that were collected in your table, as well as showing you thumbnails of images as seen below.
+
+
+Publishing Data Snapshots and Tables:
+After you’ve created a data snapshot or a table, you may wish to publish these objects to the Timbr.io so that others can use and access these files for their own work, or so that you can easily import them into your IPython/Jupyter Notebooks for further analysis. Click on the blue Timbr.io logo at the top right of the snapshot view screen. 
+
+
+
+You cannot publish a table individually, but by publishing the snapshot, you will also be publishing any and all tables associated with that snapshot. 
+
+
+
+After clicking submit your snapshot will be shared to all other users. Published snapshots can be accessed through the search interface of the Jupyter notebook extension. We’ll cover working with snapshot data in the Jupyter Notebook next.
+Using Jupyter Notebooks:
+Jupyter notebook is a great tool for doing interactive data science work.  In their own words “the Jupyter notebook is a web application that allows you to create and share documents that contain live code, equations, visualizations and explanatory text.”  If you’’d like to learn more about Jupyter notebooks check out the great documentation and tutorials here: https://jupyter.readthedocs.org/en/latest/
+Timbr.io Notebook Extension:
+Timbr.io has created a Jupyter Notebook extension that adds the ability to search through Timbr.io to find snapshots, import data, and create analysis and visualization within your notebook environment. You can download the notebook extension simply by running ‘conda install timbr-client’ into your command line.  We recommend setting up a Python virtual environment for running your Jupyter Notebook. At this point just launch your Jupyter/IPython Notebook and you’ll see the Timbr.io search and publish buttons working within your notebook, now you can discover algorithms to anlayze you data and share/publish your own.
+Working with Timbr.io Data in the Notebook:
+At the end of the pipeline tutorial we covered publishing snapshots of data you collected with your pipeline.  Once you’ve published your data it can be discovered in a Jupyter Notebook though the Timbr.io extension.  When you launch a new notebook and have the Timbr.io extention installed you get a “Snashot Slector”.  This will allow you to search for snapshots that you’ve published as well as other snapshots published by the community.  
+  
+
+Once you’ve selected your snapshot you can choose between the full snapshot, or any of the tables that were created based on that snapshot. You can also preview the data within the snapshot or the table to view the available attributes. You can also preview another user's data without downloading it into your notebook.  If you want to do table based analysis with popular frameworks like Pandas the table works great.  If an HDF5 structure works better then add the snapshot.  
+
+
+
+After you’ve added your data snapshot to the notebook you can once again click on the Timbr.io logo to get notebook transforms. Notebook transforms allow you to find reusable snippets of code which others have created and published. 
+
+
+
+Clicking on a Notebook Transform within the search menu will give you a description of the transform, a preview of the transform, and the raw code. This will give you full access and transparency to both the data you’re working with, and the analysis that you’re working with. 
+
+
+
+After reviewing the code, you can click ‘Insert This’ to add this transform into your notebook. The notebook will immediately output the result of that transform with the data that you’ve paired with it to give you the analysis’s result. 
+
+
+
+These Notebook outputs can vary greatly and include a huge range of visualizations, analyses, and interactive tools. 
+
+Flexibility of Notebooks:
+
+Notebook allow for an unbeatable level of flexibility in problem-solving for data scientists. The simple workflow allows users to quickly experiment and iterate within their notebooks. By allowing users to easily import data into their notebooks, we can make the experimentation even faster. Timbr.io also allows users to choose from a library of outputs which can be customized to match custom data, or rewritten for custom visualizations. Resulting analysis from various customized workflows are shown below.
+
+Help & Support:
+Need further help, get in touch with us:
+Email: Support@timbr.io
+Twitter: @Timbr_io
+Inquiries for Services and Custom Algorithm Development: Sean.Gorman@timbr.io
+
+Feedback? Find a bug? Help us out. There are two tabs at the bottom left side of the application.
+
+
+
